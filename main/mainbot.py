@@ -25,22 +25,26 @@ client = discord.Client()
 
 
 def get_suntime_info(paramspack, headerspack):
-
     """Данная функция формирует и отправляет GET запрос на сервер на основе полученных параметров,
                     ответ преобразует к удобному для работы виду и возвращает его"""
 
-    answer = requests.get(request_url, params=paramspack, headers=headerspack).json()  # формирую get запрос, ответ перевожу в json
-    answer = list(answer['forecasts'][0].items())  # беру dict_list всех пар словаря answer и преобразую в list для дальнейшей работы
-    print(answer)
-    suntimes = dict([answer[0], answer[3], answer[4], answer[5], answer[6]])  # 'выдёргиваю' из списка нужные пары и складываю новый словарь
+    answer = requests.get(request_url, params=paramspack,
+                          headers=headerspack).json()  # формирую get запрос, ответ перевожу в json
+    answer = list(answer['forecasts'][
+                      0].items())  # беру dict_list всех пар словаря answer и преобразую в list для дальнейшей работы
+    suntimes = dict([answer[0], answer[3], answer[4], answer[5],
+                     answer[6]])  # 'выдёргиваю' из списка нужные пары и складываю новый словарь
     suntimes['date'] = swap_year_day(suntimes['date'])
     return suntimes
 
 
 def swap_year_day(date):
-
     """Данная функция приводит дату к более читабельному виду
-                (из формата YYYY-MM-DD преобразует в формат DD.MM.YYYY)"""
+                (из формата YYYY-MM-DD преобразует в формат DD.MM.YYYY)
+        Операция производится в 3 этапа:
+        1)Строка разбивается на список из 3 элементов с разделителем '-'.
+        2)Меняются местами 2 крайних элемента(день и год).
+        3)Список собирается обратно в строку."""
 
     date = date.split('-')
     tmp = date[0]
@@ -86,9 +90,14 @@ async def on_message(message):
         wind = weather.get_wind('meters_sec')
         hum = weather.get_humidity()
         status = weather.get_status()
+        pressure = weather.get_pressure()
+        pressure = round(pressure['press'] * 0.750062, 1)
         await message.channel.send(
-            f'''В городе {city} сейчас {status_dict[str(status).lower()]}. Температура: {round(temperature['temp'])}°С. 
-        Влажность воздуха: {hum}%. Скорость ветра: {round(wind['speed'])} м/с. ''')
+            f'''В городе {city} сейчас {status_dict[str(status).lower()]}. 
+                Температура: {round(temperature['temp'])}°С. 
+                Влажность воздуха: {hum}%. 
+                Скорость ветра: {round(wind['speed'])} м/с.
+                Атмосферное давление составляет {pressure} мм.рт.ст.''')
 
     elif message.content.find('!suntime') != -1:
         city = message.content[9::]
@@ -113,7 +122,8 @@ async def on_message(message):
             Рассвет: начало - {suntimes['rise_begin']}; конец - {suntimes['sunrise']}. 
             Закат: начало - {suntimes['sunset']}; конец - {suntimes['set_end']}''')
         except KeyError:
-            await message.channel.send('Упс, похоже вы ввели полярный город, в котором сейчас полярная ночь или полярный день.')
+            await message.channel.send(
+                'Упс, похоже вы ввели полярный город, в котором сейчас полярная ночь или полярный день.')
 
 
 @client.event
