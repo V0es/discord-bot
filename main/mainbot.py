@@ -85,7 +85,6 @@ async def on_message(message):
         except pyowm.exceptions.api_response_error.NotFoundError:
             await message.channel.send('Я не знаю такого города :(')
             return
-
         weather = observation.get_weather()
         temperature = weather.get_temperature('celsius')
         wind = weather.get_wind('meters_sec')
@@ -93,7 +92,6 @@ async def on_message(message):
         status = weather.get_status()
         pressure = weather.get_pressure()
         pressure = round(pressure['press'] * 0.750062, 1)
-
         await message.channel.send(
             f'''В городе {city} сейчас {status_dict[str(status).lower()]}. 
                 Температура: {round(temperature['temp'])}°С. 
