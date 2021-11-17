@@ -212,6 +212,7 @@ async def on_message(message):
         await message.channel.send('Вот актуальные новости на сегодня:\n\n' + news_f)
 
 
+
 @client.event
 async def on_member_join(member):
     for channel in member.guild.channels:
