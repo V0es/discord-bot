@@ -1,7 +1,9 @@
 import discord
 import random
 import pyowm
+from pyowm.utils.config import get_default_config
 import time
+import os
 import requests
 from bs4 import BeautifulSoup
 
@@ -11,7 +13,11 @@ token = 'Njk2NTQ0NTgyNzQxMTMxMjc0.XoqRsQ.aQhnfiSh23GbptjYfGJnaXipJiI'
 pyowm_api_key = 'b79bb697bf0d4dacdaa4e6969c13040d'
 
 client = discord.Client()
-owm = pyowm.OWM(pyowm_api_key, language='ru')
+config_dict = get_default_config()
+config_dict['language'] = 'ru'
+owm = pyowm.OWM(pyowm_api_key, config=config_dict)
+mgr = owm.weather_manager()
+
 
 status_dict = {
     'clouds': 'облачно',
@@ -95,7 +101,8 @@ def get_pics_urls(keyword):
 
 
 def get_pic_path(keyword):
-    """Функция выбирает рандомную картинку из списка, генерирует имя файла и скачивает картинку в этот файл"""
+    """Функция выбирает рандомную картинку из списка, генерирует имя файла
+                                                            и скачивает картинку в этот файл"""
     urls = get_pics_urls(keyword)
     pic_url = urls[random.randint(1, len(urls) - 1)]
     image = get_request(pic_url, params=None, headers=None).content
@@ -104,6 +111,13 @@ def get_pic_path(keyword):
     with open(pic_path, 'wb') as f:
         f.write(image)
     return pic_path
+
+
+async def delete_pic(path):
+    if os.path.exists(path):
+        os.remove(path)
+    else:
+        print('Cannot find this file!')
 
 
 def get_news():
@@ -150,21 +164,21 @@ async def on_message(message):
         city = message.content[9::]
         print(city)
         try:
-            observation = owm.weather_at_place(city)
+            observation = mgr.weather_at_place(city)
         except pyowm.exceptions.api_response_error.NotFoundError:
             await message.channel.send('Я не знаю такого города :(')
             return
 
-        weather = observation.get_weather()
-        temperature = weather.get_temperature('celsius')
-        wind = weather.get_wind('meters_sec')
-        hum = weather.get_humidity()
-        status = weather.get_status()
-        pressure = weather.get_pressure()
+        weather = observation.weather
+        temperature = weather.temperature('celsius')
+        wind = weather.wind('meters_sec')
+        hum = weather.humidity
+        status = weather.detailed_status
+        pressure = weather.pressure
         pressure = round(pressure['press'] * 0.750062, 1)
 
         await message.channel.send(
-            f'''В городе {city} сейчас {status_dict[str(status).lower()]}. 
+            f'''В городе {city} сейчас {str(status)}. 
                 Температура: {round(temperature['temp'])}°С. 
                 Влажность воздуха: {hum}%. 
                 Скорость ветра: {round(wind['speed'])} м/с.
@@ -202,9 +216,11 @@ async def on_message(message):
         pic_path = get_pic_path(keyword)
         picture = discord.File(fp=pic_path, filename=keyword+'.jpg')
         await message.channel.send(file=picture)
+        await delete_pic(pic_path)
 
     elif message.content.find('!news') != -1:
-        """news_f - отформатированные из спииска в строку новости, чтобы иих можно было вывести одним сообщением"""
+        """news_f - отформатированные из спииска в строку новости, 
+                                чтобы их можно было вывести одним сообщением"""
         news = get_news()
         news_f = ''
         for i in range(15):
