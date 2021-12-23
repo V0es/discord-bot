@@ -39,6 +39,7 @@ localTimeFormat = "%H:%M:%S %d-%m-%Y"
 SUNTIME_URL = 'https://api.weather.yandex.ru/v2/forecast/'
 HOST = 'https://www.google.com/search'
 NEWS_URL = 'https://yandex.ru/news'
+QUOTE_URL = 'https://finewords.ru/sluchajnaya?_=1640297828989'
 
 
 def make_soup(page):
@@ -46,7 +47,7 @@ def make_soup(page):
     return soup
 
 
-def get_request(url, params, headers):
+def get_request(url, params=None, headers=None):
     """Функция отравляет GET-запрос по указанному URL-адресу с указанными параметрами и заголовками
         Возвращает объет типа Response"""
     answer = requests.get(url, params=params, headers=headers)
@@ -91,7 +92,7 @@ def get_pics_urls(keyword):
     params_dict = {'q': keyword,
                    'tbm': 'isch'}
     pics = []
-    page = get_request(HOST, params=params_dict, headers=None)
+    page = get_request(HOST, params=params_dict)
     soup = make_soup(page)
     raw_pics = soup.find_all(class_='yWs4tf')
     for data in raw_pics:
@@ -105,7 +106,7 @@ def get_pic_path(keyword):
                                                             и скачивает картинку в этот файл"""
     urls = get_pics_urls(keyword)
     pic_url = urls[random.randint(1, len(urls) - 1)]
-    image = get_request(pic_url, params=None, headers=None).content
+    image = get_request(pic_url).content
     img_id = str(time.time_ns())[-6::]
     pic_path = 'images/img'+img_id+'.jpg'
     with open(pic_path, 'wb') as f:
@@ -121,7 +122,7 @@ async def delete_pic(path):
 
 
 def get_news():
-    page = get_request(NEWS_URL, params=None, headers=None)
+    page = get_request(NEWS_URL)
     soup = make_soup(page)
     dirt_news = soup.find_all('div', class_='mg-card__text-content')
     filtered_news = []
@@ -133,6 +134,13 @@ def get_news():
     for i in range(len(filtered_news)):
         filtered_news[i] = filtered_news[i].replace('\xa0', ' ')
     return filtered_news
+
+
+def get_random_guote():
+    html = get_request(QUOTE_URL)
+    soup = make_soup(html)
+    return soup.text
+
 
 
 @client.event
@@ -154,6 +162,7 @@ async def on_message(message):
         embd.add_field(name='!suntime <город>', value='Показывает время восхода/захода солнца в указанном городе')
         embd.add_field(name='!pic <запрос>', value='Выдаёт картинку по конкретному запросу')
         embd.add_field(name='!news', value='Выводит актуальные повости')
+        embd.add_field(name='!quote', value='Присылает вам случайную цитату')
         await message.channel.send(embed=embd)
 
     elif message.content.find('!members') != -1:
@@ -227,7 +236,9 @@ async def on_message(message):
             news_f = news_f + news[i] + '\n\n'
         await message.channel.send('Вот актуальные новости на сегодня:\n\n' + news_f)
 
-
+    elif message.content.find('!quote') != -1:
+        quote = get_random_guote()
+        await message.channel.send('Вот твоя цитата на сегодня:\n\n' + quote)
 
 @client.event
 async def on_member_join(member):
