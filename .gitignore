@@ -4,3 +4,4 @@ __pycache__/pictures.cpython-310.pyc
 __pycache__/weather.cpython-310.pyc
 __pycache__/web.cpython-310.pyc
 __pycache__/news.cpython-310.pyc
+.env
