@@ -9,15 +9,6 @@ owm = pyowm.OWM(cfg.pyowm_api_key, config=cfg.config_dict)
 mgr = owm.weather_manager()
 
 
-status_dict = {
-    'clouds': 'облачно',
-    'rain': 'дождь',
-    'clear': 'ясно',
-    'haze': 'туман',
-    'snow': 'снег',
-    'mist': 'мгла'}
-
-
 def _get_weather_props(city : str) -> Dict:
     observation = mgr.weather_at_place(city)
     
