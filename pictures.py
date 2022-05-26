@@ -61,5 +61,5 @@ class Picture:
     @staticmethod
     def get_random_filename() -> str:
         img_id = str(time.time_ns())[-6::]
-        pic_path = cfg.parent_dirname+'\images\img'+img_id+'.jpg'
+        pic_path = '.\images\img'+img_id+'.jpg'
         return pic_path

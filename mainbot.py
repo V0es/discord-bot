@@ -39,7 +39,7 @@ async def on_message(message):
         return
 
 
-    dis_id = client.get_guild(cfg.guild_id)
+    dis_id = client.get_guild(int(cfg.guild_id))
 
 
     if command.command == '!hello':
