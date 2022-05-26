@@ -10,10 +10,12 @@ def get_request(url, params=None, headers=None):
 
 
 def make_soup(page):
+    """Возвращает объект soup для дальнейшей работы"""
     soup = BeautifulSoup(page.text, 'html.parser')
     return soup
 
 def get_random_guote():
+    """Возвращает текст цитаты"""
     html = get_request(cfg.quote_url)
     soup = make_soup(html)
     return soup.text

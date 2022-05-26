@@ -10,12 +10,14 @@ class Command():
 
     @staticmethod
     def _parse_command(message : str) -> str:
+        """Парсит сам текст команды"""
         command = message.content.split(' ')[0]
         return command
 
 
     @staticmethod
     def _parse_args(message : str, com_length : int) -> str:
+        """Парсит аргументы команды"""
         return message.content[com_length + 1::]
 
            
