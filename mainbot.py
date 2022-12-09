@@ -25,7 +25,7 @@ greetings = ['Салам, ', 'Здарова, ', 'Чо каво, сучара. �
 welcome = ['Вот это да! Кто пожаловал! Это ', 'Добро пожаловать на сервер, ', 'Ой! Кто-то новенький! К нам зашёл ']
 
 
-localTimeFormat = "%H:%M:%S %d-%m-%Y"
+
 
 
 
@@ -39,7 +39,7 @@ async def on_message(message):
         return
 
 
-    dis_id = client.get_guild(cfg.guild_id)
+    dis_id = client.get_guild(int(cfg.guild_id))
 
 
     if command.command == '!hello':
@@ -98,6 +98,7 @@ async def on_message(message):
         """Вывод случайной цитаты"""
         quote = web.get_random_guote()
         await message.channel.send('Вот твоя цитата на сегодня:\n\n' + quote)
+
 
 @client.event
 async def on_member_join(member):

@@ -6,7 +6,7 @@ dotenv.load_dotenv()
 
 
 def get_parent_dirname() -> str:
-        """Возвращает названия родительской директории проекта"""
+        """Возвращает название родительской директории проекта"""
 
         return os.path.relpath(os.getcwd(), os.path.dirname(os.getcwd()))
 
