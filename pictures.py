@@ -47,7 +47,8 @@ class Picture:
         else:
             raise FileNotFoundError
 
-    def _download_picture(self):
+    async def _download_picture(self):
+        """"""
         self.picture_binary = web.get_request(self.url).content
         with open(self.pic_path, 'wb') as file:
             file.write(self.picture_binary)
@@ -55,11 +56,15 @@ class Picture:
 
     @staticmethod
     def get_random_id(a : int, b : int) -> int:
+        """Возвращает рандомное число, которые будет испольлзоваться как id"""
+
         id = random.randint(a, b)
         return id
 
     @staticmethod
     def get_random_filename() -> str:
+        """Генерирует уникальнрое имя файла на основе текущего времени"""
+
         img_id = str(time.time_ns())[-6::]
         pic_path = cfg.parent_dirname+'\images\img'+img_id+'.jpg'
         return pic_path
