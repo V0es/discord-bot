@@ -1,0 +1,4 @@
+!servers - get server list
+!start <server_ip> - start server with given ip
+!server_info <server_ip> - get info about server with given ip
+!aternos_help - get all available aternos commands

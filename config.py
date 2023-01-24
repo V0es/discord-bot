@@ -28,3 +28,7 @@ class Config:
     host = os.getenv('HOST')
     news_url = os.getenv('NEWS_URL')
     quote_url = os.getenv('QUOTE_URL')
+
+    at_usrname = os.getenv('ATERNOS_USERNAME')
+    at_pass = os.getenv('ATERNOS_PASSWORD')
+    

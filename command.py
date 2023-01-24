@@ -1,6 +1,6 @@
 from typing import NamedTuple, List
 
-class Command():
+class Command:
 
     def __init__(self, message) -> None:
         self.command = self._parse_command(message)
