@@ -49,14 +49,10 @@ async def on_message(message):
 
     elif command.command == '!help':
         embd = discord.Embed(title='Доступные команды', description='')
-        embd.add_field(name='!help', value='Справка по доступным командам')
-        embd.add_field(name='!members', value='Количество пользователей на сервере')
-        embd.add_field(name='!hello', value='Приветствие пользователя')
-        embd.add_field(name='!weather <город>', value='Показывает погоду в указанном городе')
-        embd.add_field(name='!suntime <город>', value='Показывает время восхода/захода солнца в указанном городе')
-        embd.add_field(name='!pic <запрос>', value='Выдаёт картинку по конкретному запросу')
-        embd.add_field(name='!news', value='Выводит актуальные повости')
-        embd.add_field(name='!quote', value='Присылает вам случайную цитату')
+
+        for cmd, description in cfg.cmd_description.items():
+            embd.add_field(name=cmd, value=description)
+        
         await message.channel.send(embed=embd)
 
 
