@@ -30,5 +30,5 @@ class Config:
     quote_url = os.getenv('QUOTE_URL')
 
     at_usrname = os.getenv('ATERNOS_USERNAME')
-    at_pass = os.getenv('ATERNOS_PASSWORD')
+    at_pass_hashed = os.getenv('ATERNOS_PASSWORD_HASH')
     

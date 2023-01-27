@@ -1,25 +1,25 @@
-from python_aternos import Client
+from python_aternos import Client, AternosServer
 from command import Command
 from config import Config as cfg
 
 
 class AtHandler():
-    def __init__(self) -> None:
-        
-        self.client = Client.restore_session()
-        if not self.client:
-            self.client = Client.from_credentials(cfg.at_usrname, cfg.at_pass, sessions_dir='/sessions')
-
-        self.command = cmd
-    
+    def __init__(self, name) -> None:
+        self.name = name
+        try:
+            self.client = Client.restore_session(file=f'aternos/sessions/{name}.aternos')
+        except Exception:
+            self.username = cfg.at_usrname
+            self.password_hash = cfg.at_pass_hashed
+            self.client = Client.from_hashed(self.username, self.password_hash, sessions_dir='aternos/sessions')
+            
 
     def __del__(self):
-        self.client.save_session()
+        self.client.save_session(file=f'aternos/sessions/{self.name}.aternos')
 
     def start_server(server_id : str):
         pass
 
-    @staticmethod
     def get_server_list():
         self.client  
 

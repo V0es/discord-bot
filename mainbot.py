@@ -14,6 +14,8 @@ import web
 import news
 from pictures import Picture
 
+from aternos import models
+
 client = discord.Client()
 
 
@@ -85,7 +87,12 @@ async def on_message(message):
         picture = Picture(keyword)
         dis_file = discord.File(fp=io.BytesIO(picture.picture_binary), filename=picture.pic_path)
         await message.channel.send(file=dis_file)
-        await picture.delete()
+        
+        try:
+            await picture.delete()
+        except FileNotFoundError:
+            pass
+
 
     elif command.command == '!news':
         """Вывод последних 15 новостей из списка актуальных"""

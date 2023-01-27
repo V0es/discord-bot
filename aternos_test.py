@@ -17,7 +17,7 @@ class AtHandler():
         for server in servers:
             if server.address == server_ip:
                 server_to_start = server
-        server.start()
+        server_to_start.start()
 
     def get_server_list(self) -> List[AternosServer]:
         return self.client.list_servers()
