@@ -17,6 +17,8 @@ class AtHandler():
     def __del__(self):
         self.client.save_session(file=f'aternos/sessions/{self.name}.aternos')
 
+    
+
     def start_server(server_id : str):
         pass
 

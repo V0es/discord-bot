@@ -23,7 +23,8 @@ def format_news(news : List) -> str:
     """Функция принимает на вход список заголовков новостей
     Компонует в строку первые 15 заголовков, и возвращает"""
     news_f = ''
-    for i in range(15):
-        news_f = news_f + news[i] + '\n\n'
+    for i in range(8):
+        #news_f = news_f + news[i] + '\n\n'
+        print(news)
     return news_f
 
