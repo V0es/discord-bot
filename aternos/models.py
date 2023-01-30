@@ -37,25 +37,57 @@ class User(Base):
         return f'id: {self.id}; time: {self.timestamp}, pub_us: {self.public_username}, at_us: {self.aternos_username}, at_ps: {self.aternos_password}'
 
 
+class Database():
+
+    def __init__(self, db_path=None):
+        if not db_path:
+            db_path = ':memory:'
+        
+        self.engine = create_engine(f'sqlite:///{db_path}', echo=True)
+        Base.metadata.create_all(bind=self.engine)
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session()
+
+
+    def add_user(self, user : User) -> None:
+        self.session.add(user)
+        self.session.commit()
+
+
+    def get_all_users(self):
+        result = self.session.query(User).all()
+        print(type(result))
+        return result
+
+    def get_user_by_name(self, name : str):
+        result = self.session.query(User).filter(User.public_username == name).all()
+        print(type(result))
+        return result
+
+
+    def delete_all(self):
+        self.session.query(User).filter(User.id >= 1).delete()
+        self.session.commit()
+
 def get_rand_str(n):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
 
 
 
-engine = create_engine('sqlite:///:memory:', echo=True)
-Base.metadata.create_all(bind=engine)
 
-Session = sessionmaker(bind=engine)
-session = Session()
+db = Database(db_path='aternos/users.db')
 
+for i in range(50):
 
-for i in range(10000):
     usr = User(get_rand_str(32), get_rand_str(32), get_rand_str(32))
-    session.add(usr)
-    session.commit()
+    db.add_user(usr)
 
-result = session.query(User).all()
-print(result)
+db.add_user(User('smik', 'smiksss', '12345'))
+print(db.get_all_users())
+print(db.get_user_by_name('smik')[0].aternos_password)
+
+
+db.delete_all()
 
 
 
