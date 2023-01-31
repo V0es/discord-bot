@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from datetime import datetime
 
-import random, string
+import hashlib
 
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -29,12 +29,19 @@ class User(Base):
         self.timestamp = datetime.now()
         self.public_username = public_username
         self.aternos_username = aternos_username
-        self.aternos_password = aternos_password
+        self.aternos_password = self.__md5encode(aternos_password)
         
         
     
     def __repr__(self) -> str:
         return f'id: {self.id}; time: {self.timestamp}, pub_us: {self.public_username}, at_us: {self.aternos_username}, at_ps: {self.aternos_password}'
+
+    @staticmethod
+    def __md5encode(pwd : str) -> str:
+        encoded = hashlib.md5(pwd.encode('utf-8'))
+        return encoded.hexdigest().lower()
+
+
 
 
 class Database():
@@ -48,6 +55,7 @@ class Database():
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
+    
 
     def add_user(self, user : User) -> None:
         self.session.add(user)
@@ -69,25 +77,9 @@ class Database():
         self.session.query(User).filter(User.id >= 1).delete()
         self.session.commit()
 
-def get_rand_str(n):
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
 
 
 
-
-db = Database(db_path='aternos/users.db')
-
-for i in range(50):
-
-    usr = User(get_rand_str(32), get_rand_str(32), get_rand_str(32))
-    db.add_user(usr)
-
-db.add_user(User('smik', 'smiksss', '12345'))
-print(db.get_all_users())
-print(db.get_user_by_name('smik')[0].aternos_password)
-
-
-db.delete_all()
 
 
 

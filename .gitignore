@@ -6,8 +6,8 @@ __pycache__/web.cpython-310.pyc
 __pycache__/news.cpython-310.pyc
 __pycache__
 bot-venv
-sessions
-.env
+sessions/
 *.db
 temp.*
-
+.at*
+.env

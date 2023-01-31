@@ -1,5 +1,3 @@
-from typing import NamedTuple, List
-
 class Command:
 
     def __init__(self, message) -> None:

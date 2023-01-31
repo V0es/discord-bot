@@ -1,29 +1,57 @@
+from typing import List
+
+
 from python_aternos import Client, AternosServer
-from command import Command
 from config import Config as cfg
+
+from aternos.models import User
 
 
 class AtHandler():
-    def __init__(self, name) -> None:
-        self.name = name
-        try:
-            self.client = Client.restore_session(file=f'aternos/sessions/{name}.aternos')
-        except Exception:
-            self.username = cfg.at_usrname
-            self.password_hash = cfg.at_pass_hashed
-            self.client = Client.from_hashed(self.username, self.password_hash, sessions_dir='aternos/sessions')
-            
+    def __init__(self) -> None:
+        self.logged_in = False
+        
+        
 
     def __del__(self):
-        self.client.save_session(file=f'aternos/sessions/{self.name}.aternos')
+        pass
 
-    
+
+    def login(self, user : User):
+        if self.logged_in:
+            try:
+                self._logout()
+            except Exception:
+                pass    
+            
+        self.at_username = user.aternos_username
+
+        try:
+            self.client = Client.restore_session(file=f'aternos/sessions/.at_{user.aternos_username}')
+        except Exception:
+            self.client = Client.from_hashed(user.aternos_username, user.aternos_password, sessions_dir='aternos/sessions')
+
+        self.logged_in = True
+
+    def _logout(self):
+        if not self.logged_in:
+            raise
+
+        self.client.save_session(file=f'aternos/sessions/{self.at_username}.aternos')
+        self.client.logout()
+        self.logged_in = False
+
+
+    def get_server_list(self) -> List[AternosServer]:
+        try:
+            return self.client.list_servers()
+        except Exception:
+            return None
+        
 
     def start_server(server_id : str):
         pass
 
-    def get_server_list():
-        self.client  
 
     def server_info(server_id : str):
         pass

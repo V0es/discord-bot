@@ -32,3 +32,4 @@ class Config:
     at_usrname = os.getenv('ATERNOS_USERNAME')
     at_pass_hashed = os.getenv('ATERNOS_PASSWORD_HASH')
     
+    database_path = os.getenv('DATABASE_PATH')

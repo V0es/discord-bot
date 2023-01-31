@@ -4,11 +4,11 @@ from typing import List
 class AtHandler():
     def __init__(self) -> None:
         try:
-            self.client = Client.restore_session(file='C:/Users/markk/VSCode Projects/discord-bot/discord-bot/aternos/sessions/.at_v0es_test')
+            self.client = Client.restore_session(file='aternos/sessions/v0estest.aternos')
             print('Successfully restored session')
-        except FileNotFoundError:
+        except Exception:
             print('Session file not found. Trying to log in with credentials...')
-            self.client = Client.from_credentials('v0es_test', 'yadebililoh', sessions_dir="C:/Users/markk/VSCode Projects/discord-bot/discord-bot/aternos/sessions")
+            self.client = Client.from_credentials('v0es_test', 'yadebililoh', sessions_dir="aternos/sessions")
         print(self.client)    
 
 
