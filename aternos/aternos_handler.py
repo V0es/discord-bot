@@ -24,6 +24,7 @@ class AtHandler():
             except Exception:
                 pass    
             
+        self.servers = self.client.list_servers()
         self.at_username = user.aternos_username
 
         try:
@@ -38,12 +39,14 @@ class AtHandler():
         if not self.logged_in:
             raise
 
-        self.client.save_session(file=f'aternos/sessions/{self.at_username}.aternos')
+        self.client.save_session(file=f'aternos/sessions/.at_{self.at_username}')
         self.client.logout()
         self.logged_in = False
 
 
     def get_server_list(self) -> List[AternosServer]:
+        server_ids = [server.servid for server in self.servers]
+        self.client.refresh_servers(server_ids)
         
         try:
             return self.client.list_servers()
