@@ -32,7 +32,11 @@ class AtHandler():
             self.client = Client.from_hashed(user.aternos_username, user.aternos_password, sessions_dir='aternos/sessions')
 
         self.logged_in = True
-
+        
+        try:
+            self.server_ids = [server.servid for server in self.client.list_servers()]
+        except Exception:
+            self.server_ids = []
 
     def _logout(self):
         if not self.logged_in:
@@ -44,11 +48,13 @@ class AtHandler():
 
 
     def get_server_list(self) -> List[AternosServer]:
-        
+        self.client.refresh_servers(self.server_ids)
+
         try:
-            return self.client.list_servers()
+            self.server_list = self.client.list_servers()
         except Exception:
-            return None
+            self.servers = None
+        return self.server_list
         
 
     def start_server(server_id : str):

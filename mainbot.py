@@ -202,7 +202,6 @@ class DiscordBot(discord.Client):
                 await message.channel.send('Жесть, на вашем аккаунте нет ни одного сервера...')
                 return
 
-            
             for id, server in enumerate(servers):
                 #print(server)
                 server.servid
@@ -210,25 +209,49 @@ class DiscordBot(discord.Client):
                 await message.channel.send(f'Сервер #{id+1}', embed=server_embed)
             
 
+        elif command.command == '!server_info':
+            server_index = command.args
+            server = aternos.server_list[server_index]
+
+            server_embed = self.create_server_embed(server, verbose=True)
+
+            message.channel.send(embed=server_embed)
+
+        elif command.command == '!server_start':
+            server_index = command.args
+            server = aternos.server_list[server_index]
+            server.start() # TODO: сделать отчёт о запущенном сервере на вебсокетах websockets
+            message.channel.send('Сервер будет запущен в ближайшее время =)')
+
 
     @staticmethod
-    def create_server_embed(server : AternosServer) -> discord.Embed:
-        server_embed = discord.Embed(
-            title='Minecraft Server',
-            description=server.address)
+    def create_server_embed(server : AternosServer, verbose : bool = False) -> discord.Embed:
+        
+        server_embed = discord.Embed(title='Minecraft Server')
         server_embed.add_field(name='Адрес сервера', value=server.address)
         server_embed.add_field(name='Cтатус', value=server_classes[server.status])
+        
+        if verbose:
+            server_embed.add_field(name='Платформа', value='Bedrock' if server.is_bedrock else 'Java')
+            server_embed.add_field(name='Ядро', value=server.software)
+            server_embed.add_field(name='Версия', value=server.version)
+            server_embed.add_field(name='Объём ОЗУ', value=server.ram)
+            if server.status == 'online':
+                server_embed.add_field(name='Число игроков', value=f'{server.players_count}/{server.slots}')
+                
+                players_msg = ''
+                for id, player in enumerate(server.players_list):
+                    players_msg += f'{id+1}) {player}\n'
+                server_embed.add_field(name='Список игроков', value=players_msg)
+
         return server_embed
+
 
     async def on_member_join(member):
         for channel in member.guild.channels:
             if str(channel) == 'основной-канал':
                 num = random.randint(0, len(welcome) - 1)
                 await channel.send(f'''{welcome[num]}{member.mention}!''')
-
-
-
-
 
 
 intents = discord.Intents.all()
