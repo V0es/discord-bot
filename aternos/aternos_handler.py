@@ -24,6 +24,7 @@ class AtHandler():
             except Exception:
                 pass    
             
+        self.servers = self.client.list_servers()
         self.at_username = user.aternos_username
 
         try:
@@ -42,7 +43,7 @@ class AtHandler():
         if not self.logged_in:
             raise
 
-        self.client.save_session(file=f'aternos/sessions/{self.at_username}.aternos')
+        self.client.save_session(file=f'aternos/sessions/.at_{self.at_username}')
         self.client.logout()
         self.logged_in = False
 

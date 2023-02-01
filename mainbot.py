@@ -26,6 +26,7 @@ db = Database(db_path=cfg.database_path)
 aternos = AtHandler()
 discord.utils.setup_logging(level=logging.INFO)
 
+
 greetings = ['Салам, ', 'Здарова, ', 'Чо каво, сучара. Это мой кореш ', 'Давно не виделись, ', 'Здравствуй, ',
              'И тебе не хворать, ', 'Мы же с тобой уже сегодня виделись, ', 'Привет, ',
              'Ебать, божнур,  ', 'Как же ты меня уже заебал, ', 'Всем хай! И тебе, ']
@@ -193,6 +194,8 @@ class DiscordBot(discord.Client):
 
 
         elif command.command == '!at_servers':
+            '''Получить список серверов аккаунта, под которым был выполнен вход'''
+
             servers = aternos.get_server_list()
 
             if not servers:
@@ -204,7 +207,6 @@ class DiscordBot(discord.Client):
 
             for id, server in enumerate(servers):
                 #print(server)
-                server.servid
                 server_embed = self.create_server_embed(server)
                 await message.channel.send(f'Сервер #{id+1}', embed=server_embed)
             
