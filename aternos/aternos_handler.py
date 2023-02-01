@@ -33,6 +33,7 @@ class AtHandler():
 
         self.logged_in = True
 
+
     def _logout(self):
         if not self.logged_in:
             raise
@@ -43,6 +44,7 @@ class AtHandler():
 
 
     def get_server_list(self) -> List[AternosServer]:
+        
         try:
             return self.client.list_servers()
         except Exception:

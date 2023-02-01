@@ -31,7 +31,10 @@ greetings = ['Салам, ', 'Здарова, ', 'Чо каво, сучара. �
              'Ебать, божнур,  ', 'Как же ты меня уже заебал, ', 'Всем хай! И тебе, ']
 welcome = ['Вот это да! Кто пожаловал! Это ', 'Добро пожаловать на сервер, ', 'Ой! Кто-то новенький! К нам зашёл ']
 
-
+server_classes = {'offline' : 'Оффлайн',
+    'loading' : 'Загрузка',
+    'preparing' : 'Подготовка',
+    'online' : 'Онлайн'}
 
 
 class DiscordBot(discord.Client):
@@ -200,10 +203,12 @@ class DiscordBot(discord.Client):
                 return
 
             
-            for server in servers:
+            for id, server in enumerate(servers):
                 #print(server)
+                server.servid
                 server_embed = self.create_server_embed(server)
-                await message.channel.send(embed=server_embed)
+                await message.channel.send(f'Сервер #{id+1}', embed=server_embed)
+            
 
 
     @staticmethod
@@ -211,6 +216,8 @@ class DiscordBot(discord.Client):
         server_embed = discord.Embed(
             title='Minecraft Server',
             description=server.address)
+        server_embed.add_field(name='Адрес сервера', value=server.address)
+        server_embed.add_field(name='Cтатус', value=server_classes[server.status])
         return server_embed
 
     async def on_member_join(member):
