@@ -19,6 +19,7 @@ from pictures import Picture
 
 from aternos.aternos_handler import AtHandler
 from aternos.models import Database, User
+from aternos.exceptions import NoLoginError
 
 
 
@@ -34,7 +35,7 @@ welcome = ['Вот это да! Кто пожаловал! Это ', 'Добро
 
 server_classes = {'offline' : 'Оффлайн',
     'loading' : 'Загрузка',
-    'preparing' : 'Подготовка',
+    'starting' : 'Подготовка',
     'online' : 'Онлайн'}
 
 
@@ -186,44 +187,89 @@ class DiscordBot(discord.Client):
                 except asyncio.TimeoutError:
                     await message.channel.send(f'Вы, по всей видимости, забыли выбрать аккаунт. За такое неуважение вам придётся вводить команду заново!')
                     return
-
-                aternos_user = list(filter(lambda usr: usr.public_username == chosen_username, users))[0] # фильтруем записи по публичному юзернейму, который ввёл пользователь и выбираем первую(и единственную)
-                await message.channel.send(f'Отлично, вы выбрали аккаунт: *{chosen_username}*')
+                
+                aternos_user = list(filter(lambda usr: usr.public_username == chosen_username.content, users))[0] # фильтруем записи по публичному юзернейму, который ввёл пользователь и выбираем первую(и единственную)
+                
+                await message.channel.send(f'Отлично, вы выбрали аккаунт: *{aternos_user.public_username}*')
 
             aternos.login(aternos_user) # логинимся в атернос под выбранным аккаунтом
 
 
         elif command.command == '!at_servers':
             '''Получить список серверов аккаунта, под которым был выполнен вход'''
-
-            servers = aternos.get_server_list()
-
-            if not servers:
-                await message.channel.send('Не удалось получить список серверов :(')
+            try:
+                servers = aternos.get_server_list()
+            except NoLoginError:
+                await message.channel.send('Для начала вам необходимо залогиниться')
                 return
-            elif not len(servers):
+
+            if not len(servers):
                 await message.channel.send('Жесть, на вашем аккаунте нет ни одного сервера...')
                 return
 
             for id, server in enumerate(servers):
-                #print(server)
                 server_embed = self.create_server_embed(server)
+                #TODO: перенести построение embed в метод server_info
                 await message.channel.send(f'Сервер #{id+1}', embed=server_embed)
             
 
         elif command.command == '!server_info':
-            server_index = command.args
-            server = aternos.server_list[server_index]
+            try:
+                server_list = aternos.get_server_list()
+            except NoLoginError:
+                await message.channel.send('Для начала вам необходимо залогиниться')
+                return
+
+            try:
+                server_index = int(command.args)
+            except ValueError:
+                await message.channel.send('Признай, хуйню же написал...')
+                return
+
+            server = server_list[server_index - 1]
 
             server_embed = self.create_server_embed(server, verbose=True)
+            #TODO: перенести построение embed в метод server_info
 
-            message.channel.send(embed=server_embed)
+            await message.channel.send(embed=server_embed)
 
         elif command.command == '!server_start':
-            server_index = command.args
-            server = aternos.server_list[server_index]
+            try:
+                server_list = aternos.get_server_list()
+            except NoLoginError:
+                await message.channel.send('Для начала вам необходимо залогиниться')
+                return
+
+            try:
+                server_index = int(command.args)
+            except ValueError:
+                await message.channel.send('Ну и чё ты высрал...')
+                return
+            server = aternos.server_list[server_index - 1]
             server.start() # TODO: сделать отчёт о запущенном сервере на вебсокетах websockets
-            message.channel.send('Сервер будет запущен в ближайшее время =)')
+            #TODO: перенести логику запуска сервера в метод start_server
+            await message.channel.send('Сервер будет запущен в ближайшее время =)')
+
+        elif command.command == '!roll':
+            bounds = command.args
+            if not bounds:
+                rand_num = random.randint(0, 100)
+            else:
+                bounds = bounds.split('-')
+                try:
+                    lower_bound, upper_bound = int(bounds[0]), int(bounds[1])
+                except Exception:
+                    await message.channel.send('Это же надо додуматься такую ебалу написать')
+                    return
+
+                try:
+                    rand_num = random.randint(lower_bound, upper_bound)
+                except ValueError:
+                    await message.channel.send('Ты порядок чисел в рот ебал?')
+                    return
+
+            await message.channel.send(f'Ваше число: *{rand_num}*')
+            
 
 
     @staticmethod
@@ -237,14 +283,15 @@ class DiscordBot(discord.Client):
             server_embed.add_field(name='Платформа', value='Bedrock' if server.is_bedrock else 'Java')
             server_embed.add_field(name='Ядро', value=server.software)
             server_embed.add_field(name='Версия', value=server.version)
-            server_embed.add_field(name='Объём ОЗУ', value=server.ram)
+            server_embed.add_field(name='Используемая память', value=f'{server.ram} MB')
             if server.status == 'online':
                 server_embed.add_field(name='Число игроков', value=f'{server.players_count}/{server.slots}')
-                
-                players_msg = ''
-                for id, player in enumerate(server.players_list):
-                    players_msg += f'{id+1}) {player}\n'
-                server_embed.add_field(name='Список игроков', value=players_msg)
+
+                if server.players_count:
+                    players_msg = ''
+                    for id, player in enumerate(server.players_list):
+                        players_msg += f'{id+1}) {player}\n'
+                    server_embed.add_field(name='Список игроков', value=players_msg)
 
         return server_embed
 

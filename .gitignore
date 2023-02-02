@@ -161,3 +161,6 @@ bot-venv
 #database files
 *.db
 
+#session files
+sessions/
+

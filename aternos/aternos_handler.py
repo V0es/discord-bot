@@ -2,9 +2,10 @@ from typing import List
 
 
 from python_aternos import Client, AternosServer
-from config import Config as cfg
+
 
 from aternos.models import User
+from aternos.exceptions import NoLoginError
 
 
 class AtHandler():
@@ -24,14 +25,13 @@ class AtHandler():
             except Exception:
                 pass    
             
-        self.servers = self.client.list_servers()
-        self.at_username = user.aternos_username
-
         try:
             self.client = Client.restore_session(file=f'aternos/sessions/.at_{user.aternos_username}')
         except Exception:
             self.client = Client.from_hashed(user.aternos_username, user.aternos_password, sessions_dir='aternos/sessions')
 
+        self.servers = self.client.list_servers()
+        self.at_username = user.aternos_username
         self.logged_in = True
         
         try:
@@ -49,16 +49,21 @@ class AtHandler():
 
 
     def get_server_list(self) -> List[AternosServer]:
+        
+        if not self.logged_in:
+            raise NoLoginError
+
         self.client.refresh_servers(self.server_ids)
 
         try:
             self.server_list = self.client.list_servers()
-        except Exception:
-            self.servers = None
+        except Exception as e:
+            print(e)
+            raise NoLoginError
         return self.server_list
         
 
-    def start_server(server_id : str):
+    def start_server(server: str):
         pass
 
 
