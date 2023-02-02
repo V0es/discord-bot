@@ -164,3 +164,6 @@ bot-venv
 #session files
 sessions/
 
+#test files
+test.py
+
