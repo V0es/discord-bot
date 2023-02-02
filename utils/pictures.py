@@ -1,4 +1,4 @@
-import web
+import utils.web as web
 import os
 from config import Config as cfg
 import random

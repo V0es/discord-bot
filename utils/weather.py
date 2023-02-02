@@ -2,7 +2,7 @@ import pyowm
 from pyowm.commons import exceptions
 from typing import Dict
 from config import Config as cfg
-import web
+import utils.web as web
 
 
 owm = pyowm.OWM(cfg.pyowm_api_key, config=cfg.config_dict)

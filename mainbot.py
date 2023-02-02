@@ -11,11 +11,11 @@ from python_aternos import AternosServer, ServerStartError
 
 #Importing project files 
 from config import Config as cfg
-import weather
-from command import Command
-import web
-import news
-from pictures import Picture
+from utils import weather
+from utils.command import Command
+from utils import web
+from utils import news
+from utils.pictures import Picture
 
 from aternos.aternos_handler import AtHandler
 from aternos.models import Database, User
@@ -303,10 +303,5 @@ class DiscordBot(discord.Client):
                 await channel.send(f'''{welcome[num]}{member.mention}!''')
 
 
-intents = discord.Intents.all()
-
-
-client = DiscordBot(intents=intents)
-client.run(cfg.bot_token)
 
 

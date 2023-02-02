@@ -1,5 +1,5 @@
 from typing import List
-import web
+import utils.web as web
 from config import Config as cfg
 
 def get_news():
