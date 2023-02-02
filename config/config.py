@@ -1,8 +1,10 @@
 import dotenv
 from pyowm.utils.config import get_default_config
 import os
+import json
 
 dotenv.load_dotenv()
+
 
 
 def get_parent_dirname() -> str:
@@ -12,6 +14,14 @@ def get_parent_dirname() -> str:
 
 
 class Config:
+    
+    def _get_json(path : str) -> str:
+        with open(path, 'r', encoding='utf-8') as f:
+            commands = json.loads(f.read())
+        return commands
+    
+    __commands_file_path = os.getenv('COMMANDS_FILE_PATH')
+
     yand_api_key = os.getenv('YANDEX_API_KEY')
     bot_token = os.getenv('BOT_TOKEN')
     pyowm_api_key = os.getenv('PYOWM_API_KEY')
@@ -33,3 +43,8 @@ class Config:
     at_pass_hashed = os.getenv('ATERNOS_PASSWORD_HASH')
     
     database_path = os.getenv('DATABASE_PATH')
+
+
+    common_help = _get_json(__commands_file_path)['common_help']
+    aternos_help = _get_json(__commands_file_path)['aternos_help']
+
