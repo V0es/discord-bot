@@ -1,6 +1,6 @@
-from mainbot import DiscordBot
+from bot import DiscordBot
 from discord import Intents
-from config import Config as cfg
+from config.config import Config as cfg
 
 
 if __name__ == '__main__':

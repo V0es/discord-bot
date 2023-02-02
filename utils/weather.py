@@ -1,7 +1,7 @@
 import pyowm
 from pyowm.commons import exceptions
 from typing import Dict
-from config import Config as cfg
+from config.config import Config as cfg
 import utils.web as web
 
 

@@ -1,6 +1,6 @@
 from typing import List
 import utils.web as web
-from config import Config as cfg
+from config.config import Config as cfg
 
 def get_news():
     """Функция возвращает спискок заголовков новостей"""

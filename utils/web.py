@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from config import Config as cfg
+from config.config import Config as cfg
 
 def get_request(url, params=None, headers=None):
     """Функция отравляет GET-запрос по указанному URL-адресу с указанными параметрами и заголовками

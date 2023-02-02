@@ -3,6 +3,7 @@ import random
 import io
 import asyncio
 import logging
+from typing import Dict
 
 #Importing third-party libs
 import discord
@@ -10,7 +11,7 @@ from python_aternos import AternosServer, ServerStartError
 
 
 #Importing project files 
-from config import Config as cfg
+from config.config import Config as cfg
 from utils import weather
 from utils.command import Command
 from utils import web
@@ -47,26 +48,30 @@ class DiscordBot(discord.Client):
         if command.author.id == self.user.id:
             return
 
-
         dis_id = self.get_guild(int(cfg.guild_id))
 
 
         if command.command == '!hello':
-            num = random.randint(0, len(greetings) - 1)
-            await message.reply(f'''{greetings[num]}{message.author.name}!''', mention_author=True)
+            await message.reply(f'''{random.choice(greetings)}{message.author.name}!''', mention_author=True)
 
 
         elif command.command == '!help':
-            embd = discord.Embed(title='Доступные команды', description='')
-            embd.add_field(name='!help', value='Справка по доступным командам')
-            embd.add_field(name='!members', value='Количество пользователей на сервере')
-            embd.add_field(name='!hello', value='Приветствие пользователя')
-            embd.add_field(name='!weather <город>', value='Показывает погоду в указанном городе')
-            embd.add_field(name='!suntime <город>', value='Показывает время восхода/захода солнца в указанном городе')
-            embd.add_field(name='!pic <запрос>', value='Выдаёт картинку по конкретному запросу')
-            embd.add_field(name='!news', value='Выводит актуальные повости')
-            embd.add_field(name='!quote', value='Присылает вам случайную цитату')
-            await message.channel.send(embed=embd)
+            #embd = discord.Embed(title='Доступные команды', description='')
+            #embd.add_field(name='!help', value='Справка по доступным командам')
+            #embd.add_field(name='!members', value='Количество пользователей на сервере')
+            #embd.add_field(name='!hello', value='Приветствие пользователя')
+            #embd.add_field(name='!weather <город>', value='Показывает погоду в указанном городе')
+            #embd.add_field(name='!suntime <город>', value='Показывает время восхода/захода солнца в указанном городе')
+            #embd.add_field(name='!pic <запрос>', value='Выдаёт картинку по конкретному запросу')
+            #embd.add_field(name='!news', value='Выводит актуальные повости')
+            #embd.add_field(name='!quote', value='Присылает вам случайную цитату')
+            embed = self._create_help_embed(cfg.common_help)
+            await message.channel.send(embed=embed)
+
+
+        elif command.command == '!at_help':
+            embed = self._create_help_embed(cfg.aternos_help)
+            await message.channel.send(embed=embed)
 
 
         elif command.command == '!members':
@@ -291,16 +296,17 @@ class DiscordBot(discord.Client):
 
 
     @staticmethod
-    def create_server_embed(server : AternosServer, verbose : bool = False) -> discord.Embed:
-        pass
-        
+    def _create_help_embed(commands : Dict[str, str]) -> discord.Embed:
+        embed = discord.Embed(title='Доступные команды', description='Список доступных команд с описанием')
+        for cmd, description in commands.items():
+            embed.add_field(name=cmd, value=description)
+        return embed
 
 
     async def on_member_join(member):
         for channel in member.guild.channels:
-            if str(channel) == 'основной-канал':
-                num = random.randint(0, len(welcome) - 1)
-                await channel.send(f'''{welcome[num]}{member.mention}!''')
+            if channel.name == 'основной-канал':
+                await channel.send(f'''{random.choice(welcome)}{member.mention}!''')
 
 
 

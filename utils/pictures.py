@@ -1,6 +1,6 @@
 import utils.web as web
 import os
-from config import Config as cfg
+from config.config import Config as cfg
 import random
 import time
 
