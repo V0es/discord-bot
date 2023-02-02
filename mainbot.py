@@ -6,7 +6,7 @@ import logging
 
 #Importing third-party libs
 import discord
-from python_aternos import AternosServer
+from python_aternos import AternosServer, ServerStartError
 
 
 #Importing project files 
@@ -19,7 +19,7 @@ from pictures import Picture
 
 from aternos.aternos_handler import AtHandler
 from aternos.models import Database, User
-from aternos.exceptions import NoLoginError
+from aternos.exceptions import NoLoginError, ServerRefreshError, ServerNotExist
 
 
 
@@ -33,10 +33,7 @@ greetings = ['Салам, ', 'Здарова, ', 'Чо каво, сучара. �
              'Ебать, божнур,  ', 'Как же ты меня уже заебал, ', 'Всем хай! И тебе, ']
 welcome = ['Вот это да! Кто пожаловал! Это ', 'Добро пожаловать на сервер, ', 'Ой! Кто-то новенький! К нам зашёл ']
 
-server_classes = {'offline' : 'Оффлайн',
-    'loading' : 'Загрузка',
-    'starting' : 'Подготовка',
-    'online' : 'Онлайн'}
+
 
 
 class DiscordBot(discord.Client):
@@ -119,6 +116,7 @@ class DiscordBot(discord.Client):
 
         elif command.command == '!at_signup':
             """Регистрация своего аккаунта Aternos"""
+            #TODO: сделать проверку аккаунта на валидность
             user = command.author
             await user.send(f'''Привет, {user.name}!\n
             В этом диалоге можно настроить Aternos-сервис, чтобы тебе больше не приходилось вручную запускать сервер по просьбе друзей\n
@@ -165,7 +163,7 @@ class DiscordBot(discord.Client):
             users = db.get_all_users()
 
             if len(users) == 0: #если в бд нет записей
-                await message.channel.send(f'У вас не привязано ни одного аккаунта Aternos :( Воспользуйтесь командой **!aternos_signup** и я помогу вам это исправить!')
+                await message.channel.send(f'У вас не привязано ни одного аккаунта Aternos :( Воспользуйтесь командой **!at_signup** и я помогу вам это исправить!')
                 return
 
             elif len(users) == 1: #если в бд одна запись => выбирать акк не нужно
@@ -199,61 +197,81 @@ class DiscordBot(discord.Client):
             '''Получить список серверов аккаунта, под которым был выполнен вход'''
             try:
                 servers = aternos.get_server_list()
+
             except NoLoginError:
                 await message.channel.send('Для начала вам необходимо залогиниться')
+                return
+
+            except ServerRefreshError:
+                await message.channel.send('Упс... Проблема с доступом к серверам. Повторите попытку чуть позже')
                 return
 
             if not len(servers):
                 await message.channel.send('Жесть, на вашем аккаунте нет ни одного сервера...')
                 return
 
-            for id, server in enumerate(servers):
-                server_embed = self.create_server_embed(server)
+            for server_index in range(len(servers)):
+                server_embed = aternos.server_info(server_index)
                 #TODO: перенести построение embed в метод server_info
-                await message.channel.send(f'Сервер #{id+1}', embed=server_embed)
+                await message.channel.send(f'Сервер #{server_index+1}', embed=server_embed)
             
 
         elif command.command == '!server_info':
+            
             try:
-                server_list = aternos.get_server_list()
-            except NoLoginError:
-                await message.channel.send('Для начала вам необходимо залогиниться')
-                return
-
-            try:
-                server_index = int(command.args)
+                server_index = int(command.args) - 1
             except ValueError:
                 await message.channel.send('Признай, хуйню же написал...')
                 return
 
-            server = server_list[server_index - 1]
-
-            server_embed = self.create_server_embed(server, verbose=True)
+            try:
+                server_embed = aternos.server_info(server_index, verbose=True)
+            except NoLoginError:
+                await message.channel.send('Для начала вам необходимо залогиниться')
+                return
+            except ServerRefreshError:
+                await message.channel.send('Упс... Проблема с доступом к серверам. Повторите попытку чуть позже')
+                return
+            except ServerNotExist:
+                await message.channel.send('Кажется, вы ввели некорректный номер сервера')
+                return
             #TODO: перенести построение embed в метод server_info
 
             await message.channel.send(embed=server_embed)
 
-        elif command.command == '!server_start':
-            try:
-                server_list = aternos.get_server_list()
-            except NoLoginError:
-                await message.channel.send('Для начала вам необходимо залогиниться')
-                return
 
+        elif command.command == '!server_start':
+            
             try:
                 server_index = int(command.args)
             except ValueError:
                 await message.channel.send('Ну и чё ты высрал...')
                 return
-            server = aternos.server_list[server_index - 1]
-            server.start() # TODO: сделать отчёт о запущенном сервере на вебсокетах websockets
+
+            try:
+                aternos.start_server(server_index)
+            except NoLoginError:
+                await message.channel.send('Для начала вам необходимо залогиниться')
+                return
+            except ServerRefreshError:
+                await message.channel.send('Упс... Проблема с доступом к серверам. Повторите попытку чуть позже')
+                return
+            except ServerNotExist:
+                await message.channel.send('Кажется, вы ввели некорректный номер сервера')
+                return
+            except ServerStartError:
+                await message.channel.send('Не удалось запустить сервер =( Повторите попытку позже или обратитесь в поддержку')
+                return
+
+            #TODO: сделать отчёт о запущенном сервере на вебсокетах websockets
             #TODO: перенести логику запуска сервера в метод start_server
             await message.channel.send('Сервер будет запущен в ближайшее время =)')
 
         elif command.command == '!roll':
             bounds = command.args
             if not bounds:
-                rand_num = random.randint(0, 100)
+                lower_bound, upper_bound = 0, 100
+                rand_num = random.randint(lower_bound, upper_bound)
             else:
                 bounds = bounds.split('-')
                 try:
@@ -268,32 +286,14 @@ class DiscordBot(discord.Client):
                     await message.channel.send('Ты порядок чисел в рот ебал?')
                     return
 
-            await message.channel.send(f'Ваше число: *{rand_num}*')
+            await message.channel.send(f'Ваше случайное число от *{lower_bound}* до *{upper_bound}*: **{rand_num}**')
             
 
 
     @staticmethod
     def create_server_embed(server : AternosServer, verbose : bool = False) -> discord.Embed:
+        pass
         
-        server_embed = discord.Embed(title='Minecraft Server')
-        server_embed.add_field(name='Адрес сервера', value=server.address)
-        server_embed.add_field(name='Cтатус', value=server_classes[server.status])
-        
-        if verbose:
-            server_embed.add_field(name='Платформа', value='Bedrock' if server.is_bedrock else 'Java')
-            server_embed.add_field(name='Ядро', value=server.software)
-            server_embed.add_field(name='Версия', value=server.version)
-            server_embed.add_field(name='Используемая память', value=f'{server.ram} MB')
-            if server.status == 'online':
-                server_embed.add_field(name='Число игроков', value=f'{server.players_count}/{server.slots}')
-
-                if server.players_count:
-                    players_msg = ''
-                    for id, player in enumerate(server.players_list):
-                        players_msg += f'{id+1}) {player}\n'
-                    server_embed.add_field(name='Список игроков', value=players_msg)
-
-        return server_embed
 
 
     async def on_member_join(member):
