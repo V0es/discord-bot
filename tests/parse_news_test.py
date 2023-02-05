@@ -1,19 +1,11 @@
 import unittest
 import string, random
 from bot import DiscordBot
+from config.config import Config as cfg
 
 test_method = DiscordBot._parse_news_args
 
 
-news_categories = {
-    'business' : 'бизнес',
-    'entertainment' : 'развлечения',
-    'general' : 'общие',
-    'health' : 'здоровье',
-    'science' : 'наука',
-    'sports' : 'спорт',
-    'technology' : 'технологии',
-}
 
 
 
@@ -29,7 +21,7 @@ def _parse_news_args(news_args : str):
             return None
         for arg in arg_list:
 
-            if arg in news_categories.keys():
+            if arg in cfg.news_categories.keys():
                 news_args['category'] = arg
                 continue
             
@@ -48,7 +40,7 @@ class ParseNewsTest(unittest.TestCase):
     def test_parse(self):
         for i in range(100):
             test_str = ''
-            category = random.choice(list(news_categories.keys()))
+            category = random.choice(list(cfg.news_categories.keys()))
             keyword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
             number = str(random.randint(0, 100))
             test_str += category + ':' + keyword + ':' + number
@@ -67,7 +59,7 @@ class ParseNewsTest(unittest.TestCase):
     def test_parse_nokeyword(self):
         for i in range(1000):
             test_str = ''
-            category = random.choice(list(news_categories.keys()))
+            category = random.choice(list(cfg.news_categories.keys()))
             number = str(random.randint(0, 100))
             test_str += category + ':' + number
             self.assertEqual(test_method(test_str), {'category' : category, 'keyword' : None, 'num' : number})
@@ -76,7 +68,7 @@ class ParseNewsTest(unittest.TestCase):
     def test_parse_nonumber(self):
         for i in range(1000):
             test_str = ''
-            category = random.choice(list(news_categories.keys()))
+            category = random.choice(list(cfg.news_categories.keys()))
             keyword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
             test_str += category + ':' + keyword
             self.assertEqual(test_method(test_str), {'category' : category, 'keyword' : keyword, 'num' : None})
@@ -85,7 +77,7 @@ class ParseNewsTest(unittest.TestCase):
     def test_parse_only_category(self):
         for i in range(1000):
             test_str = ''
-            category = random.choice(list(news_categories.keys()))
+            category = random.choice(list(cfg.news_categories.keys()))
             test_str += category
             self.assertEqual(test_method(test_str), {'category' : category, 'keyword' : None, 'num' : None})
 
@@ -109,7 +101,7 @@ class ParseNewsTest(unittest.TestCase):
     def test_parse_wrong_order(self):
         for i in range(1000):
             test_str = ''
-            category = random.choice(list(news_categories.keys()))
+            category = random.choice(list(cfg.news_categories.keys()))
             keyword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
             number = str(random.randint(0, 100))
             

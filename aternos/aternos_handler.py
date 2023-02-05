@@ -2,10 +2,10 @@ from typing import List
 
 
 from python_aternos import Client, AternosServer
-from python_aternos import ServerStartError
+from python_aternos import ServerStartError, CredentialsError
 
 from aternos.models import User
-from aternos.exceptions import NoLoginError, ServerRefreshError, ServerNotExist
+from aternos.exceptions import NoLoginError, ServerRefreshError, ServerNotExist, AuthenticationError
 
 
 from discord import Embed
@@ -34,9 +34,10 @@ class AtHandler():
             
         try:
             self.client = Client.restore_session(file=f'aternos/sessions/.at_{user.aternos_username}')
-        except Exception:
+        except FileNotFoundError:
             self.client = Client.from_hashed(user.aternos_username, user.aternos_password, sessions_dir='aternos/sessions')
-
+        except CredentialsError:
+            raise AuthenticationError
         self.servers = self.client.list_servers()
         self.at_username = user.aternos_username
         self.logged_in = True

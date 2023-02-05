@@ -6,3 +6,6 @@ class ServerRefreshError(Exception):
 
 class ServerNotExist(Exception):
     pass
+
+class AuthenticationError(Exception):
+    pass
