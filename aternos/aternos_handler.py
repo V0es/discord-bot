@@ -10,28 +10,27 @@ from aternos.exceptions import NoLoginError, ServerRefreshError, ServerNotExist,
 
 from discord import Embed
 
-server_states = {'offline' : 'Оффлайн',
-    'loading' : 'Загрузка',
-    'starting' : 'Подготовка',
-    'online' : 'Онлайн'}
+# TODO: перенести в json
+server_states = {'offline': 'Оффлайн',
+                 'loading': 'Загрузка',
+                 'starting': 'Подготовка',
+                 'online': 'Онлайн'
+                 }
+
 
 class AtHandler():
     def __init__(self) -> None:
         self.logged_in = False
-        
-        
 
     def __del__(self):
         pass
 
-
-    def login(self, user : User):
+    def login(self, user: User):
         if self.logged_in:
             try:
                 self._logout()
             except Exception:
-                pass    
-            
+                pass
         try:
             self.client = Client.restore_session(file=f'aternos/sessions/.at_{user.aternos_username}')
         except FileNotFoundError:
@@ -41,7 +40,7 @@ class AtHandler():
         self.servers = self.client.list_servers()
         self.at_username = user.aternos_username
         self.logged_in = True
-        
+      
         try:
             self.server_ids = [server.servid for server in self.client.list_servers()]
         except Exception:
@@ -55,12 +54,10 @@ class AtHandler():
         self.client.logout()
         self.logged_in = False
 
-
     def get_server_list(self) -> List[AternosServer]:
         self._check_errors()
         return self.server_list
         
-
     def _refresh_servers(self):
         self.client.refresh_servers(self.server_ids)
         try:
@@ -70,7 +67,7 @@ class AtHandler():
             raise ServerRefreshError
 
     @staticmethod
-    def _create_server_embed(server : AternosServer, verbose) -> Embed:
+    def _create_server_embed(server: AternosServer, verbose) -> Embed:
         
         server_embed = Embed(title='Minecraft Server')
         server_embed.add_field(name='Адрес сервера', value=server.address)
@@ -92,7 +89,6 @@ class AtHandler():
 
         return server_embed
 
-
     def _check_errors(self):
         if not self.logged_in:
             raise NoLoginError
@@ -100,7 +96,6 @@ class AtHandler():
             self._refresh_servers()
         except ServerRefreshError:
             raise ServerRefreshError
-
 
     def start_server(self, server_index: int):
         self._check_errors()
@@ -114,8 +109,7 @@ class AtHandler():
         except ServerStartError:
             raise ServerStartError
 
-
-    def server_info(self, server_index : int, verbose : bool = False):
+    def server_info(self, server_index: int, verbose: bool = False):
         self._check_errors()
         
         try:
@@ -126,5 +120,3 @@ class AtHandler():
         server_embed = self._create_server_embed(server, verbose)
 
         return server_embed
-        
-

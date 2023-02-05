@@ -6,16 +6,15 @@ import json
 dotenv.load_dotenv()
 
 
-
 def get_parent_dirname() -> str:
-        """Возвращает название родительской директории проекта"""
+    """Возвращает название родительской директории проекта"""
 
-        return os.path.relpath(os.getcwd(), os.path.dirname(os.getcwd()))
+    return os.path.relpath(os.getcwd(), os.path.dirname(os.getcwd()))
 
 
 class Config:
     
-    def _get_json(path : str) -> str:
+    def _get_json(path: str) -> str:
         with open(path, 'r', encoding='utf-8') as f:
             content = json.loads(f.read())
         return content
@@ -47,12 +46,8 @@ class Config:
     
     database_path = os.getenv('DATABASE_PATH')
 
-
     common_help = _get_json(__commands_file_path)['common_help']
     aternos_help = _get_json(__commands_file_path)['aternos_help']
     news_categories = _get_json(__news_categories_file_path)
     welcomes = _get_json(__phrases_file_path)['welcomes']
     greetings = _get_json(__phrases_file_path)['greetings']
-
-
-

@@ -6,33 +6,31 @@ from config.config import Config as cfg
 from discord import Embed
 
 
-def get_news(category : str, keyword : str, amount : int) -> List[Embed]:
+def get_news(category: str, keyword: str, amount: int) -> List[Embed]:
     """Функция возвращает JSON с новостями"""
 
     params = {
-        'apiKey' : cfg.news_api_key,
-        'q' : keyword,
-        'category' : category,
-        'country' : 'ru',
-        #'pageSize' : amount
+        'apiKey': cfg.news_api_key,
+        'q': keyword,
+        'category': category,
+        'country': 'ru',
     }
-
 
     if not keyword:
         del params['q']
     if not category:
         del params['category']
     if not amount:
-        #params['pageSize'] = 7 #default
+        # params['pageSize'] = 7 #default
         amount = 5
-        #TODO: проверить правильность передачи параметра количества новостей
+        # TODO: проверить правильность передачи параметра количества новостей
     response = web.get_request(cfg.news_url, params=params).json()
     embed_list = _news_embed_list(response, amount)
 
     return embed_list
 
 
-def _news_embed_list(response_json : Dict, amount : int) -> List[Embed]:
+def _news_embed_list(response_json: Dict, amount: int) -> List[Embed]:
     """Функция принимает на вход список заголовков новостей
     Компонует в строку первые 15 заголовков, и возвращает"""
     news_list = []
@@ -45,4 +43,3 @@ def _news_embed_list(response_json : Dict, amount : int) -> List[Embed]:
         embed.set_image(url=item['urlToImage'])
         news_list.append(embed)
     return news_list
-
