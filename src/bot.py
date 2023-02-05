@@ -34,7 +34,7 @@ class DiscordBot(discord.Client):
 
     async def on_message(self, message):
         command = Command(message)
-
+        
         if command.author.id == self.user.id:
             return
 

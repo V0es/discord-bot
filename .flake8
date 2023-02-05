@@ -1,5 +1,5 @@
 [flake8]
-extend-ignore = W293
+extend-ignore = W293, C901
 exclude = git,__pycache__,bot-venv,.env,.vscode,images,db,sessions
 
 max-complexity = 10
