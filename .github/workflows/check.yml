@@ -1,9 +1,6 @@
 name: Code check
 on: 
   push:
-    branches:
-      - master
-      - aternos_manager
   pull_request:
     branches:
       - master
