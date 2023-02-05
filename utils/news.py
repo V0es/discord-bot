@@ -1,30 +1,44 @@
-from typing import List
+from typing import List, Dict
 import utils.web as web
 from config.config import Config as cfg
+from discord import Embed
 
-def get_news():
-    """Функция возвращает спискок заголовков новостей"""
-    page = web.get_request(cfg.news_url)
-    soup = web.make_soup(page)
-    dirt_news = soup.find_all('div', class_='mg-card__text-content') # поиск по конкретному div'у
-    filtered_news = []
-    for data in dirt_news:
-        if data.find('h2', class_='mg-card__title') is not None:
-            filtered_news.append(data.find('h2', class_='mg-card__title').text) # если есть текст заголовка - помещаем в список
 
-    for i in range(len(filtered_news)):
-        filtered_news[i] = filtered_news[i].replace('\xa0', ' ') # заменяем служебные символы на обычные
+def get_news(category : str, keyword : str, amount : int) -> List[Embed]:
+    """Функция возвращает JSON с новостями"""
+
+    params = {
+        'apiKey' : cfg.news_api_key,
+        'q' : keyword,
+        'category' : category,
+        'country' : 'ru',
+        'pageSize' : amount
+    }
+
+    if not keyword:
+        del params['q']
+    if not category:
+        del params['category']
+    if not amount:
+        params['pageSize'] = 15 #default
+        #TODO: проверить правильность передачи параметра количества новостей
     
-    formatted_news = format_news(filtered_news)
-    return formatted_news
+    response = web.get_request(cfg.news_url, params=params).json()
+    embed_list = _news_embed_list(response)
+
+    return embed_list
 
 
-def format_news(news : List) -> str:
+def _news_embed_list(response_json : Dict) -> List[Embed]:
     """Функция принимает на вход список заголовков новостей
     Компонует в строку первые 15 заголовков, и возвращает"""
-    news_f = ''
-    for i in range(8):
-        #news_f = news_f + news[i] + '\n\n'
-        print(news)
-    return news_f
+    news_list = []
+    for item in response_json['articles']:
+        embed = Embed(title=item['title'], description=item['description'])
+        embed.add_field(name='Автор', value=item['author'] if bool(item['author']) else item['source']['name'])
+        embed.add_field(name='Ссылка', value=item['url'])
+        embed.set_author(name=item['source']['name'], url='https://www.' + item['source']['name'].lower())
+        embed.set_image(url=item['urlToImage'])
+        news_list.append(embed)
+    return news_list
 

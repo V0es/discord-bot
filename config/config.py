@@ -37,6 +37,7 @@ class Config:
     suntime_url = os.getenv('SUNTIME_URL')
     host = os.getenv('HOST')
     news_url = os.getenv('NEWS_URL')
+    news_api_key = os.getenv('NEWS_API_KEY')
     quote_url = os.getenv('QUOTE_URL')
 
     at_usrname = os.getenv('ATERNOS_USERNAME')

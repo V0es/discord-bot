@@ -11,7 +11,7 @@ def get_request(url, params=None, headers=None):
 
 def make_soup(page):
     """Возвращает объект soup для дальнейшей работы"""
-    soup = BeautifulSoup(page.text, 'html.parser')
+    soup = BeautifulSoup(page.text, 'lxml')
     return soup
 
 def get_random_guote():

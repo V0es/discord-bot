@@ -3,7 +3,7 @@ import random
 import io
 import asyncio
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
 #Importing third-party libs
 import discord
@@ -34,6 +34,16 @@ greetings = ['Салам, ', 'Здарова, ', 'Чо каво, сучара. �
              'Ебать, божнур,  ', 'Как же ты меня уже заебал, ', 'Всем хай! И тебе, ']
 welcome = ['Вот это да! Кто пожаловал! Это ', 'Добро пожаловать на сервер, ', 'Ой! Кто-то новенький! К нам зашёл ']
 
+
+news_categories = {
+    'бизнес': 'business',
+    'развлечения': 'entertainment',
+    'общие': 'general',
+    'здоровье': 'health',
+    'наука': 'science',
+    'спорт': 'sports',
+    'технологии': 'technology'
+}
 
 
 
@@ -107,10 +117,15 @@ class DiscordBot(discord.Client):
 
 
         elif command.command == '!news':
-            """Вывод последних 15 новостей из списка актуальных"""
-            news_str = news.get_news()
+            """Вывод новостей по категории, ключевому слову и количеству результатов"""
 
-            await message.channel.send('Вот актуальные новости на сегодня:\n\n' + news_str)
+            news_args = self._parse_news_args(command.args)
+            news_embed_list = news.get_news(**news_args)
+
+            if not len(news_embed_list):
+                await message.channel.send('Не смог найти новости по вашему запросу =(')
+            for embed in news_embed_list:
+                await message.channel.send(embed=embed)
 
 
         elif command.command == '!quote':
@@ -302,6 +317,34 @@ class DiscordBot(discord.Client):
             embed.add_field(name=cmd, value=description)
         return embed
 
+
+    @staticmethod
+    def _parse_news_args(news_args : str) -> Dict[str, Optional[str]]:
+        arg_list = news_args.split(':')
+        news_args = {
+            'category' : None,
+            'keyword' : None,
+            'amount' : None
+        }
+        
+        if not len(arg_list):
+            return None
+        for arg in arg_list:
+
+            if arg in news_categories.keys():
+                news_args['category'] = news_categories[arg]
+                continue
+            
+            else:
+                try:
+                    arg = int(arg)
+                    news_args['amount'] = str(arg)
+                    continue
+                except ValueError:
+                    news_args['keyword'] = arg
+                    continue
+        return news_args
+        
 
     async def on_member_join(member):
         for channel in member.guild.channels:
