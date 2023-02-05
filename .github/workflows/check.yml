@@ -1,7 +1,6 @@
 name: Code check
 on: 
-  push:
-    branches: [master]
+  push
   pull-request:
     branches: [master]
 
