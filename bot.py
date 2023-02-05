@@ -20,30 +20,13 @@ from utils.pictures import Picture
 
 from aternos.aternos_handler import AtHandler
 from aternos.models import Database, User
-from aternos.exceptions import NoLoginError, ServerRefreshError, ServerNotExist
+from aternos.exceptions import NoLoginError, ServerRefreshError, ServerNotExist, AuthenticationError
 
 
 
 db = Database(db_path=cfg.database_path)
 aternos = AtHandler()
 discord.utils.setup_logging(level=logging.INFO)
-
-
-greetings = ['Салам, ', 'Здарова, ', 'Чо каво, сучара. Это мой кореш ', 'Давно не виделись, ', 'Здравствуй, ',
-             'И тебе не хворать, ', 'Мы же с тобой уже сегодня виделись, ', 'Привет, ',
-             'Ебать, божнур,  ', 'Как же ты меня уже заебал, ', 'Всем хай! И тебе, ']
-welcome = ['Вот это да! Кто пожаловал! Это ', 'Добро пожаловать на сервер, ', 'Ой! Кто-то новенький! К нам зашёл ']
-
-
-news_categories = {
-    'бизнес': 'business',
-    'развлечения': 'entertainment',
-    'общие': 'general',
-    'здоровье': 'health',
-    'наука': 'science',
-    'спорт': 'sports',
-    'технологии': 'technology'
-}
 
 
 
@@ -62,7 +45,7 @@ class DiscordBot(discord.Client):
 
 
         if command.command == '!hello':
-            await message.reply(f'''{random.choice(greetings)}{message.author.name}!''', mention_author=True)
+            await message.reply(f'''{random.choice(cfg.greetings)}, {message.author.name}!''', mention_author=True)
 
 
         elif command.command == '!help':
@@ -210,7 +193,12 @@ class DiscordBot(discord.Client):
                 
                 await message.channel.send(f'Отлично, вы выбрали аккаунт: *{aternos_user.public_username}*')
 
-            aternos.login(aternos_user) # логинимся в атернос под выбранным аккаунтом
+            await message.channel.send(f'Захожу под выбранным юзернеймом...')
+            
+            try:
+                aternos.login(aternos_user) # логинимся в атернос под выбранным аккаунтом
+            except AuthenticationError:
+                await message.channel.send(f'Не получилось войти в аккаунт Aternos. Проверьте правильность введённых данных')
 
 
         elif command.command == '!at_servers':
@@ -309,6 +297,17 @@ class DiscordBot(discord.Client):
             await message.channel.send(f'Ваше случайное число от *{lower_bound}* до *{upper_bound}*: **{rand_num}**')
             
 
+        elif command.command == '!change_nickname':
+            pass
+
+        elif command.command == '!change_username':
+            pass
+
+        elif command.command == '!change_password':
+            pass
+
+        elif command.command == '!delete_account':
+            pass
 
     @staticmethod
     def _create_help_embed(commands : Dict[str, str]) -> discord.Embed:
@@ -331,8 +330,8 @@ class DiscordBot(discord.Client):
             return None
         for arg in arg_list:
 
-            if arg in news_categories.keys():
-                news_args['category'] = news_categories[arg]
+            if arg in cfg.news_categories.keys():
+                news_args['category'] = cfg.news_categories[arg]
                 continue
             
             else:
@@ -349,7 +348,7 @@ class DiscordBot(discord.Client):
     async def on_member_join(member):
         for channel in member.guild.channels:
             if channel.name == 'основной-канал':
-                await channel.send(f'''{random.choice(welcome)}{member.mention}!''')
+                await channel.send(f'''{random.choice(cfg.welcomes)} {member.mention}!''')
 
 
 

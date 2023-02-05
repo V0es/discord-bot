@@ -48,6 +48,7 @@ class Picture:
         else:
             raise FileNotFoundError
 
+
     def _download_picture(self):
         """Функция вытягивает бинарник картинки из ответа на GET-запрос и записывает его в файл"""
         self.picture_binary = web.get_request(self.url).content

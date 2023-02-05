@@ -17,10 +17,12 @@ class Config:
     
     def _get_json(path : str) -> str:
         with open(path, 'r', encoding='utf-8') as f:
-            commands = json.loads(f.read())
-        return commands
+            content = json.loads(f.read())
+        return content
     
     __commands_file_path = os.getenv('COMMANDS_FILE_PATH')
+    __news_categories_file_path = os.getenv('NEWS_CATEGORIES_FILE_PATH')
+    __phrases_file_path = os.getenv('PHRASES_FILE_PATH')
 
     yand_api_key = os.getenv('YANDEX_API_KEY')
     bot_token = os.getenv('BOT_TOKEN')
@@ -48,4 +50,9 @@ class Config:
 
     common_help = _get_json(__commands_file_path)['common_help']
     aternos_help = _get_json(__commands_file_path)['aternos_help']
+    news_categories = _get_json(__news_categories_file_path)
+    welcomes = _get_json(__phrases_file_path)['welcomes']
+    greetings = _get_json(__phrases_file_path)['greetings']
+
+
 
