@@ -167,3 +167,6 @@ sessions/
 #test files
 test.py
 
+#vscode files
+.vscode
+
