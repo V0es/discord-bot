@@ -1,8 +1,9 @@
-import web
+import utils.web as web
 import os
-from config import Config as cfg
+from config.config import Config as cfg
 import random
 import time
+
 
 class Picture:
     def __init__(self, keyword) -> None:
@@ -10,7 +11,6 @@ class Picture:
         self.url = self._get_pic_url()
         self.pic_path = self.get_pic_path()
         self._download_picture()
-
 
     def _get_pic_url(self):
         """Функция парсит страницу и вытягивает оттуда адрес исходника картинки в переменную pic_url"""
@@ -27,19 +27,17 @@ class Picture:
         if raw_pic.get('src') is not None:
             picture_url = raw_pic.get('src')
         else:
-            while(raw_pic is None):
+            while raw_pic is None:
                 id = self._get_random_id(1, len(pic_list) - 1)
                 raw_pic = pic_list[id]
             picture_url = raw_pic.get('src')
 
         return picture_url
 
-
     def get_pic_path(self):
         """Функция берёт бинарник картинки из ссылки, записанной в поле 'url', запрашивает сгенерированное имя файла
                                                                 и скачивает картинку в этот файл"""
         return self._get_random_filename()
-
     
     async def delete(self):
         """Функция, которая асинхронно удаляет файл с картинкой"""
@@ -54,9 +52,8 @@ class Picture:
         with open(self.pic_path, 'wb') as file:
             file.write(self.picture_binary)
 
-
     @staticmethod
-    def _get_random_id(a : int, b : int) -> int:
+    def _get_random_id(a: int, b: int) -> int:
         """Функция просто возвращает рандомное число, которое будет использоваться как id"""
         id = random.randint(a, b)
         return id
@@ -65,5 +62,5 @@ class Picture:
     def _get_random_filename() -> str:
         """Функция возвращает путь к картинке и генерирует для неё рандомное имя (на основе текущего времени)"""
         img_id = str(time.time_ns())[-6::]
-        pic_path = '.\images\img'+img_id+'.jpg'
+        pic_path = '/images/img'+img_id+'.jpg'
         return pic_path
