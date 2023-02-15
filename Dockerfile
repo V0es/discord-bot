@@ -1,5 +1,8 @@
 FROM ubuntu:latest
 LABEL maintainer="v0es"
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 WORKDIR /usr/local/bin
 COPY . .
 RUN apt-get update && \
