@@ -18,7 +18,7 @@ jobs:
       run: docker build . --file Dockerfile --tag v0es/discord-swamp-bot:$(date +%s)
     
    
-  push:
+  push_to_registry:
     name: Push Docker Image to DockerHub
     needs: build
     runs-on: ubuntu-latest
