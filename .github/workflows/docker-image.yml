@@ -7,19 +7,20 @@ on:
     branches: [ "master" ]
 
 jobs:
-
   push_to_registry:
     name: Push Docker Image to DockerHub
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag v0es/discord-swamp-bot:$(date +%s)
+      - name: Check out repo
+        uses: actions/checkout@v3
 
-    - name: Docker Login
-    run: |
-      docker login -u {{ secrets.DOCKER_USERNAME }} -p {{ secrets.DOCKER_PASSWORD }}
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag v0es/discord-swamp-bot:$(date +%s)
 
-    - name: Docker Push
-    run: docker push {{ secrets.DOCKER_USERNAME }}/discord-swamp-bot
+      - name: Docker Login
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Docker Push
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/discord-swamp-bot
