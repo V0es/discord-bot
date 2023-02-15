@@ -1,4 +1,4 @@
-FROM ubutnu:latest
+FROM ubuntu:latest
 LABEL maintainer="v0es"
 WORKDIR /usr/local/bin
 COPY . .
