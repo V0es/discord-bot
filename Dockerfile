@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 RUN apk update && \
     apk add bash && \
-    apk add python
+    apk add python3
     #apk add py-pip && \
     #pip install -r requirements.txt && \
     #rm -rf /var/cache/apk/*
