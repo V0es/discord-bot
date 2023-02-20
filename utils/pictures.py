@@ -62,5 +62,5 @@ class Picture:
     def _get_random_filename() -> str:
         """Функция возвращает путь к картинке и генерирует для неё рандомное имя (на основе текущего времени)"""
         img_id = str(time.time_ns())[-6::]
-        pic_path = '/images/img'+img_id+'.jpg'
+        pic_path = 'utils/images/img'+img_id+'.jpg'
         return pic_path
