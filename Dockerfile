@@ -1,11 +1,12 @@
 FROM arm64v8/alpine
 LABEL maintainer="v0es"
-WORKDIR /usr/local/bin
+WORKDIR /app
 COPY . .
 RUN apk update && \
-    apk add --no-cache bash && \
-    apk add -y python3 && \
-    apk add -y python3-pip && \
-    pip3 install -r requirements.txt
+    apk add bash && \
+    apk add python && \
+    apk add py-pip && \
+    pip install -r requirements.txt && \
+    rm -rf /var/cache/apk/*
 
-CMD ["python3", "src/main.py"]
+CMD ["python", "src/main.py"]
