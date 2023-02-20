@@ -10,23 +10,47 @@ jobs:
   push_to_registry:
     name: Push Docker Image to DockerHub
     runs-on: ubuntu-latest
-    env:
+    env:     
+      DOCKER_REGISTRY: docker.io      
+      DOCKER_IMAGE: v0es/discord-swamp-bot      
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
       DOCKER_TARGET_PLATFORM: linux/arm/v8
 
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
 
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag v0es/discord-swamp-bot:latest
+      # https://github.com/docker/setup-qemu-action
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
 
-      - name: Docker Login
-        run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      
+      - name: Prepare      
+        if: success()      
+        id: prepare      
+        run: |        
+          echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}        
+          echo ::set-output name=docker_image::${DOCKER_REGISTRY}/${DOCKER_IMAGE}        
+          echo ::set-output name=version::latest    
+      
+      - name: Docker Login      
+        if: success()      
+        run: |        
+          echo "${DOCKER_PASSWORD}" | docker login ${DOCKER_REGISTRY} --username "${DOCKER_USERNAME}" --password-stdin          
+      
+      - name: Run Buildx (push image)      
+        if: success()      
+        run: |        
+          docker buildx build \
+          --platform ${{ steps.prepare.outputs.docker_platform }} \
+          --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} \
+          --file ./Dockerfile \
+          --output type=image,push=true .
 
-      - name: Docker Push
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/discord-swamp-bot:latest
-    
   # deploy-container:
   #   name: Deploy container to server
   #   runs-on: ubuntu-latest
