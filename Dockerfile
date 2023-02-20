@@ -3,8 +3,8 @@ LABEL maintainer="v0es"
 WORKDIR /app
 COPY . .
 RUN apk update && \
-    apk add bash
-    #apk add python && \
+    apk add bash && \
+    apk add python
     #apk add py-pip && \
     #pip install -r requirements.txt && \
     #rm -rf /var/cache/apk/*
