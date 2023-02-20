@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM arm64v8/ubuntu
 LABEL maintainer="v0es"
 WORKDIR /usr/local/bin
 COPY . .
