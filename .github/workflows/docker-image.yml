@@ -25,9 +25,9 @@ jobs:
       - name: Docker Push
         run: docker push ${{ secrets.DOCKER_USERNAME }}/discord-swamp-bot:latest
     
-  deploy-container:
-    name: Deploy container to server
-    runs-on: ubuntu-latest
+  # deploy-container:
+  #   name: Deploy container to server
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: 
+  #   steps:
+  #     - name: 
