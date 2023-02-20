@@ -49,8 +49,7 @@ jobs:
           --platform ${{ steps.prepare.outputs.docker_platform }} \
           --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} \
           --file ./Dockerfile \
-          --output type=image,push=true \
-          --no-cache
+          --output type=image,push=true
 
   # deploy-container:
   #   name: Deploy container to server
