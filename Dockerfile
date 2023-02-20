@@ -1,4 +1,4 @@
-FROM arm64v8/ubuntu
+FROM arm64v8/alpine
 LABEL maintainer="v0es"
 WORKDIR /usr/local/bin
 COPY . .
