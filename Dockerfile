@@ -8,4 +8,4 @@ RUN apk update && \
     apk add py3-pip && \
     pip install -r requirements.txt && \
     rm -rf /var/cache/apk/*
-CMD ["python", "src/main.py"]
+CMD ["python", "-m", "src.main"]
