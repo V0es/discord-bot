@@ -19,13 +19,13 @@ class Config:
             content = json.loads(f.read())
         return content
     
-    __commands_file_path = os.getenv('COMMANDS_FILE_PATH')
-    __news_categories_file_path = os.getenv('NEWS_CATEGORIES_FILE_PATH')
-    __phrases_file_path = os.getenv('PHRASES_FILE_PATH')
+    config_json = _get_json('config/config.json')
 
     yand_api_key = os.getenv('YANDEX_API_KEY')
-    bot_token = os.getenv('BOT_TOKEN')
+    bot_token = os.getenv('DISCORD_BOT_TOKEN')
     pyowm_api_key = os.getenv('PYOWM_API_KEY')
+    guild_id = os.getenv('GUILD_ID')
+    news_api_key = os.getenv('NEWS_API_KEY')
 
     config_dict = get_default_config()
     config_dict['language'] = 'ru'
@@ -34,20 +34,15 @@ class Config:
 
     parent_dirname = get_parent_dirname()
 
-    guild_id = os.getenv('GUILD_ID')
-    suntime_url = os.getenv('SUNTIME_URL')
-    host = os.getenv('HOST')
-    news_url = os.getenv('NEWS_URL')
-    news_api_key = os.getenv('NEWS_API_KEY')
-    quote_url = os.getenv('QUOTE_URL')
-
-    at_usrname = os.getenv('ATERNOS_USERNAME')
-    at_pass_hashed = os.getenv('ATERNOS_PASSWORD_HASH')
+    suntime_url = config_json['links']['suntime_url']
+    host = config_json['links']['host']
+    news_url = config_json['links']['news_url']
+    quote_url = config_json['links']['quote_url']
     
-    database_path = os.getenv('DATABASE_PATH')
+    database_path = config_json['paths']['database_path']
 
-    common_help = _get_json(__commands_file_path)['common_help']
-    aternos_help = _get_json(__commands_file_path)['aternos_help']
-    news_categories = _get_json(__news_categories_file_path)
-    welcomes = _get_json(__phrases_file_path)['welcomes']
-    greetings = _get_json(__phrases_file_path)['greetings']
+    common_help = config_json['available_commands']['common_help']
+    aternos_help = config_json['available_commands']['aternos_help']
+    news_categories = config_json['news_categories']
+    welcomes = config_json['phrases']['welcomes']
+    greetings = config_json['phrases']['greetings']
