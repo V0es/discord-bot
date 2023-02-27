@@ -20,6 +20,7 @@ class Config:
         return content
     
     config_json = _get_json('config/config.json')
+    deploy_json = _get_json('config/deploy.json')
 
     yand_api_key = os.getenv('YANDEX_API_KEY')
     discord_bot_token = os.getenv('DISCORD_BOT_TOKEN')
@@ -27,10 +28,21 @@ class Config:
     guild_id = os.getenv('GUILD_ID')
     news_api_key = os.getenv('NEWS_API_KEY')
 
-    config_dict = get_default_config()
-    config_dict['language'] = 'ru'
-    config_dict['connection']['use_ssl'] = False
-    config_dict['connection']["verify_ssl_certs"] = False
+    dockerhub_username = os.getenv('DOCKERHUB_USERNAME')
+    dockerhub_password = os.getenv('DOCKERHUB_PASSWORD')
+    portainer_username = os.getenv('PORTAINER_USERNAME')
+    portainer_password = os.getenv('PORTAINER_PASSWORD')
+    dns_username = os.getenv('DNS_USERNAME')
+    dns_password = os.getenv('DNS_PASSWORD')
+    rpi_address = os.getenv('RPI_ADDRESS')
+    endpoint_id = os.getenv('ENDPOINT_ID')
+
+    _deploy = True if os.getenv('DEPLOY') == 'true' else False
+    if not _deploy:
+        config_dict = get_default_config()
+        config_dict['language'] = 'ru'
+        config_dict['connection']['use_ssl'] = False
+        config_dict['connection']["verify_ssl_certs"] = False
 
     parent_dirname = get_parent_dirname()
 

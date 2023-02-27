@@ -52,9 +52,37 @@ jobs:
           --output type=image,push=true \
           --no-cache .
 
-  # deploy-container:
-  #   name: Deploy container to server
-  #   runs-on: ubuntu-latest
+   deploy-container:
+      name: Deploy container to server
+      runs-on: ubuntu-latest
+     
+      env: 
+        YANDEX_API_KEY: ${{ secrets.YANDEX_API_KEY }}
+        PYOWM_API_KEY: ${{ secrets.PYOWM_API_KEY }}
+        PORTAINER_API_TOKEN: ${{ secrets.PORTAINER_API_TOKEN }}
+        NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+        GUILD_ID: ${{ secrets.GUILD_ID }}
+        DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+        PORTAINER_USERNAME: ${{ secrets.PORTAINER_USERNAME }}
+        PORTAINER_PASSWORD: ${{ secrets.PORTAINER_PASSWORD }}
+        DNS_USERNAME: ${{ secrets.DNS_USERNAME }}
+        DNS_PASSWORD: ${{ secrets.DNS_PASSWORD }}
+        RPI_ADDRESS: ${{ secrets.RPI_ADDRESS }}
+        ENDPOINT_ID: ${{ secrets.ENDPOINT_ID }}
 
-  #   steps:
-  #     - name: 
+      steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+      
+      - name: Install Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run deploy script
+        run: DEPLOY=true python deploy.py
