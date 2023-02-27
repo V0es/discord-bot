@@ -13,15 +13,15 @@ class ParseNewsTest(unittest.TestCase):
         for _ in range(100):
             test_str = ''
             category = random.choice(list(cfg.news_categories.keys()))
-            keyword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+            keyword = ''.join(random.choice(string.ascii_uppercase) + random.choice(string.digits) for _ in range(8))
             number = str(random.randint(0, 100))
             test_str += category + ':' + keyword + ':' + number
             self.assertEqual(test_method(test_str), {'category': cfg.news_categories[category], 'keyword': keyword,  'amount': number})
-    
+
     def test_parse_nocategory(self):
         for _ in range(100):
             test_str = ''
-            keyword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+            keyword = ''.join(random.choice(string.ascii_uppercase) + random.choice(string.digits) for _ in range(8))
             number = str(random.randint(0, 100))
             test_str += keyword + ':' + number
             self.assertEqual(test_method(test_str), {'category': None, 'keyword': keyword, 'amount': number})
@@ -38,7 +38,7 @@ class ParseNewsTest(unittest.TestCase):
         for _ in range(1000):
             test_str = ''
             category = random.choice(list(cfg.news_categories.keys()))
-            keyword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+            keyword = ''.join(random.choice(string.ascii_uppercase) + random.choice(string.digits) for _ in range(8))
             test_str += category + ':' + keyword
             self.assertEqual(test_method(test_str), {'category': cfg.news_categories[category], 'keyword': keyword, 'amount': None})
 
@@ -52,7 +52,7 @@ class ParseNewsTest(unittest.TestCase):
     def test_parse_only_keyword(self):
         for _ in range(1000):
             test_str = ''
-            keyword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+            keyword = ''.join(random.choice(string.ascii_uppercase) + random.choice(string.digits) for _ in range(8))
             test_str += keyword
             self.assertEqual(test_method(test_str), {'category': None, 'keyword': keyword, 'amount': None})
 
@@ -67,7 +67,7 @@ class ParseNewsTest(unittest.TestCase):
         for _ in range(1000):
             test_str = ''
             category = random.choice(list(cfg.news_categories.keys()))
-            keyword = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+            keyword = ''.join(random.choice(string.ascii_uppercase) + random.choice(string.digits) for _ in range(8))
             number = str(random.randint(0, 100))
             
             lst = [category, keyword, number]
