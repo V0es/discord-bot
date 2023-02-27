@@ -1,0 +1,40 @@
+{
+    "image": {
+        "find": {
+            "name": "v0es/discord-swamp-bot"
+        },
+        "create": {
+            "params": {
+                "fromImage": "v0es/discord-swamp-bot",
+                "tag": "latest"
+            }
+        }
+    },
+    "container": {
+        "find": {
+            "name": "/discord-swamp-bot"
+        },
+        "get": {
+            "params": {
+                "all": "true"
+            }
+        },
+        "create": {
+            "params": {
+                "name": "discord-swamp-bot" 
+            },
+            "json": {
+                "Image": "v0es/discord-swamp-bot",
+                "Env": ""
+            }
+        }
+    },
+    "docker": {
+        "auth": {
+            "params": {
+                "email": "markkikov@gmail.com",
+                "serveraddress": "registry.hub.docker.com"
+            }
+        }
+    }
+}

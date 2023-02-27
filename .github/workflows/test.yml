@@ -10,6 +10,13 @@ on:
 jobs:
   pytest:
     runs-on: ubuntu-latest
+    env: 
+      YANDEX_API_KEY: ${{ secrets.YANDEX_API_KEY }}
+      PYOWM_API_KEY: ${{ secrets.PYOWM_API_KEY }}
+      PORTAINER_API_TOKEN: ${{ secrets.PORTAINER_API_TOKEN }}
+      NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+      GUILD_ID: ${{ secrets.GUILD_ID }}
+      DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
     strategy:
       matrix:
         python-version: [ '3.9', '3.x' ]
