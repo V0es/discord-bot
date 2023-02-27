@@ -22,7 +22,7 @@ class Config:
     config_json = _get_json('config/config.json')
 
     yand_api_key = os.getenv('YANDEX_API_KEY')
-    bot_token = os.getenv('DISCORD_BOT_TOKEN')
+    discord_bot_token = os.getenv('DISCORD_BOT_TOKEN')
     pyowm_api_key = os.getenv('PYOWM_API_KEY')
     guild_id = os.getenv('GUILD_ID')
     news_api_key = os.getenv('NEWS_API_KEY')
