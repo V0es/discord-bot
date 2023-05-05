@@ -99,7 +99,7 @@ class DiscordBot(discord.Client):
             """Регистрация своего аккаунта Aternos"""
             # TODO: сделать проверку аккаунта на валидность
             user = command.author
-            await user.send(f'''Привет, {user.name}!\n
+            await user.send(f'''Привет, **{user.name}**!\n
             В этом диалоге можно настроить Aternos-сервис,
             чтобы тебе больше не приходилось вручную запускать сервер по просьбе друзей\n
             Я могу запускать нужный сервер всего в пару команд, круто, правда?\n
@@ -111,15 +111,28 @@ class DiscordBot(discord.Client):
                 return m.author == user and isinstance(m.channel, discord.DMChannel)
 
             try:
-                public_username = await self.wait_for('message', timeout=5*60.0, check=check)
-                public_username = public_username.content
+                while True:
+                    public_username = await self.wait_for('message', timeout=5*60.0, check=check)
+                    public_username = public_username.content
+                    collisions = db.get_user_by_nickname(public_username)
+                    if collisions is not None:
+                        await user.send('Аккаунт с таким никнеймом уже существует. Придумай другой.')
+                    else:
+                        break
+
                 await user.send(f'''{public_username} - отличный выбор!
-                                Теперь мне нужно узнать твоё имя пользователя на Aternos''')
+                            Теперь мне нужно узнать твоё имя пользователя на Aternos''')
+                
+                while True:
+                    aternos_username = await self.wait_for('message', timeout=5*60.0, check=check)
+                    aternos_username = aternos_username.content
+                    collisions = db.get_user_by_username(aternos_username)
+                    if collisions is not None:
+                        await user.send('Аккаунт с таким логином Aternos уже существует. Попробуй другой.')
+                    else:
+                        break
 
-                aternos_username = await self.wait_for('message', timeout=5*60.0, check=check)
-                aternos_username = aternos_username.content
                 await user.send('Хорошо, теперь введи свой пароль от Aternos')
-
                 aternos_password = await self.wait_for('message', timeout=5*60.0, check=check)
                 aternos_password = aternos_password.content
 
@@ -183,6 +196,9 @@ class DiscordBot(discord.Client):
                 aternos.login(aternos_user)  # логинимся в атернос под выбранным аккаунтом
             except AuthenticationError:
                 await message.channel.send('Не получилось войти в аккаунт Aternos. Проверьте правильность введённых данных')
+                return
+            
+            await message.channel.send('Аккаунт успешно выбран!')
 
         elif command.command == '!at_servers':
             '''Получить список серверов аккаунта, под которым был выполнен вход'''
@@ -277,7 +293,7 @@ class DiscordBot(discord.Client):
             await message.channel.send(f'Ваше случайное число от *{lower_bound}* до *{upper_bound}*: **{rand_num}**')
 
         elif command.command == '!change_nickname':
-            pass
+            await self.change_nickname(command)
 
         elif command.command == '!change_username':
             pass
@@ -287,6 +303,48 @@ class DiscordBot(discord.Client):
 
         elif command.command == '!delete_account':
             pass
+
+    async def change_nickname(self, command):
+        user = command.author
+        await user.send(f"""Привет, **{user.name}**!
+            Я помогу тебе поменять публичный никнейм, к которому привязан твой аккаунт Aternos""")
+       
+        def check(m: discord.Message) -> bool:
+            return m.author == user and isinstance(m.channel, discord.DMChannel)
+        
+        try:
+            await user.send('''Для начала введи свой логин Aternos''')
+            aternos_username = await self.wait_for('message', timeout=5*60.0, check=check)
+            aternos_username = aternos_username.content
+
+            user_to_change = db.get_user_by_username(aternos_username)
+            
+            await user.send('''Хорошо, теперь введи свой пароль от Aternos''')
+            aternos_password = await self.wait_for('message', timeout=5*60.0, check=check)
+            aternos_password = aternos_password.content
+
+            try:
+                if not user_to_change == User(user_to_change.public_username, aternos_username, aternos_password):  # if password is wrong
+                    raise AttributeError
+            except AttributeError:  # if user is None exception is caught
+                await user.send('''Неправильный логин или пароль. Попробуй ещё раз...''')
+                return
+            
+            await user.send('Отлично! Введи новый никнейм')
+            new_public_username = await self.wait_for('message', timeout=5*60.0, check=check)
+            new_public_username = new_public_username.content
+
+            am = db.change_public_username(new_public_username, user_to_change)
+            if not am == 1:
+                print('В БД есть коллизии, проверь')
+            await user.send(f'Супер, твой новый никнейм - **{new_public_username}**!')
+        
+        except asyncio.TimeoutError:
+            await user.send('''Что-то ты долго мне не отвечаешь :(\n
+            Наверное, ты уснул. Напиши мне ещё раз как освободишься...''')
+            return
+        
+        pass
 
     @staticmethod
     def _create_help_embed(commands: Dict[str, str]) -> discord.Embed:

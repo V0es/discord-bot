@@ -160,6 +160,7 @@ bot-venv
 
 #database files
 *.db
+*.db-journal
 
 #session files
 sessions/

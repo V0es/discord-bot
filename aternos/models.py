@@ -27,8 +27,15 @@ class User(Base):
         self.aternos_password = self.__md5encode(aternos_password)
         
     def __repr__(self) -> str:
-        return f'id: {self.id}; time: {self.timestamp}, pub_us: {self.public_username}, \
-            at_us: {self.aternos_username}, at_ps: {self.aternos_password}'
+        return f'''id: {self.id}; time: {self.timestamp}, pub_us: {self.public_username},\n
+            at_us: {self.aternos_username}, at_ps: {self.aternos_password}'''
+    
+    def __eq__(self, __o: object) -> bool:
+        return (
+            self.public_username == __o.public_username
+            and self.aternos_username == __o.aternos_username
+            and self.aternos_password == __o.aternos_password
+        )
 
     @staticmethod
     def __md5encode(pwd: str) -> str:
@@ -38,7 +45,7 @@ class User(Base):
 
 class Database():
 
-    def __init__(self, db_path=None):
+    def __init__(self, db_path: str = None):
         if not db_path:
             db_path = ':memory:'
         
@@ -56,9 +63,16 @@ class Database():
         print(type(result))
         return result
 
-    def get_user_by_name(self, name: str):
-        result = self.session.query(User).filter(User.public_username == name).all()
-        print(type(result))
+    def get_user_by_nickname(self, nickname: str):
+        result = self.session.query(User).filter(User.public_username == nickname).first()
+        return result
+
+    def get_user_by_username(self, username: str):
+        result = self.session.query(User).filter(User.aternos_username == username).first()
+        return result
+    
+    def change_public_username(self, new_username: str, user: User):
+        result = self.session.query(User).filter(User == user).update({User.public_username: new_username})
         return result
 
     def delete_all(self):
